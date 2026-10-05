@@ -1,0 +1,35 @@
+name: Build site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production site
+        run: npm run build
+
+      - name: Package Hostinger site
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hostinger-site
+          path: dist/
+          include-hidden-files: true
+          retention-days: 7
